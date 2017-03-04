@@ -1,0 +1,13 @@
+# Define the goal
+string action_name # Specify which action to execute in database
+---
+# Define the result
+string action_name
+uint32 n_primitives
+uint32 primitives_executed
+bool action_completed
+---
+# Define a feedback message
+string action_name
+uint32 n_primitives
+uint32 primitive_executed

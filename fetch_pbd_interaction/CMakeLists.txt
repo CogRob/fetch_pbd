@@ -6,9 +6,11 @@ project(fetch_pbd_interaction)
 # TODO: remove all from COMPONENTS that are not catkin packages.
 find_package(catkin REQUIRED COMPONENTS
   actionlib
-  geometry_msgs
-  message_generation
+  actionlib_msgs
   fetch_arm_control
+  geometry_msgs
+  genmsg
+  message_generation
   rospy
   rospy_message_converter
   std_msgs
@@ -58,13 +60,19 @@ add_service_files(
   GuiInput.srv
 )
 
+add_action_files(
+  FILES
+  Execute.action
+)
+
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs
-  geometry_msgs
-  tf
+  actionlib_msgs
   fetch_arm_control
+  geometry_msgs
+  std_msgs
+  tf
 )
 
 # catkin_package parameters: http://ros.org/doc/groovy/api/catkin/html/dev_guide/generated_cmake_api.html#catkin-package
