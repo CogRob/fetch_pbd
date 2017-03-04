@@ -6,7 +6,7 @@
 
 	<arg name="social_gaze" default="true" />
 	<arg name="play_sound" default="true" />
-	<arg name="from_file" default="$(find fetch_pbd_interaction)/examples/example_actions.json" />
+	<arg name="from_file" default="$(find fetch_pbd_interaction)/examples/mirrored_welcom_actions.json" />
 	<arg name="to_file" default="" />
 
 	<!-- This runs all of the prerequisite nodes for the PbD backend to
@@ -24,3 +24,19 @@
 		<param name="from_file" value="$(arg from_file)" />
 	</node>
 </launch>
+
+<!--
+Make sure the catkin workspace is sourced
+
+Then launch this launchfile:
+$ roslaunch fetch_pbd_interaction pbd_action_server.launch
+
+Then run a simple actionlib GUI client
+$ rosrun actionlib axclient.py /pbd_action_exicute
+
+Then past in the following goal and click "SEND GOAL" button:
+action_names: ['small_wave_hello', 'large_wave_hello', 'selfie_engage', 'selfie_disengage']
+continue_on_failure: False
+
+Finally, the arm should do each action in turn, as listed above
+ -->
