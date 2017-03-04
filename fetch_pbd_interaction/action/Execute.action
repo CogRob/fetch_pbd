@@ -1,13 +1,14 @@
 # Define the goal
-string action_name # Specify which action to execute in database
+string[] action_names # Specify which order of actions to execute in database
+bool continue_on_failure
 ---
 # Define the result
-string action_name
-uint32 n_primitives
-uint32 primitives_executed
-bool action_completed
+string[] action_names
+bool[] actions_completed
+bool success
 ---
 # Define a feedback message
-string action_name
-uint32 n_primitives
-uint32 primitive_executed
+string[] action_names
+string current_action_executed_name
+uint32 current_action_executed_index
+bool[] current_actions_completed

@@ -20,7 +20,7 @@
 
 	<!-- This runs the action server node itself.	It is the main state
 	machine for programmatic interaction and PbD -->
-	<node name="fetch_pbd_action_server" pkg="fetch_pbd_interaction" type="fetch_pbd_action_server.py" output="screen">
+	<node name="fetch_pbd_action_server" pkg="fetch_pbd_interaction" type="pbd_action_server.py" output="screen">
 		<param name="from_file" value="$(arg from_file)" />
 	</node>
 </launch>

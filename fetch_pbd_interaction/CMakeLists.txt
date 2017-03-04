@@ -148,6 +148,7 @@ include_directories(
 # )
 
 install(PROGRAMS
+  nodes/pbd_action_server.py
   nodes/pbd_arm_control_node.py
   nodes/pbd_interaction_node.py
   nodes/pbd_world_node.py
