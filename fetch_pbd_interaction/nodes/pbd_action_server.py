@@ -36,21 +36,21 @@ class PBDAction(object):
     '''Handles what leanred action to execute'''
 
     def __init__(self, action_server_name):
+        '''Initilize PbD Action Server'''
+        # Initilize PbD Session
         self.action_server_name = action_server_name
-
-        # Run the system
         self.tf_listener = TransformListener()
         self.robot = Robot(self.tf_listener)
         self.im_server = InteractiveMarkerServer(TOPIC_IM_SERVER)
-        # Get path to example json file
-        file_path = rospy.get_param("from_file")
         self.session = Session(self.robot, self.tf_listener,
-                      self.im_server, from_file=file_path)
-
+                      self.im_server, from_file=rospy.get_param("from_file"))
         n_actions = self.session.n_actions()
+        rospy.loginfo("There are {} actions avalable.".format(n_actions))
         if n_actions > 0:
-            rospy.loginfo("There are {} actions.".format(n_actions))
+            actions = self.session._get_action_names()
+            rospy.loginfo("List of avalable actions includes: {}".format(actions))
 
+        # Initilize Simple Action Server
         self.action_server = SimpleActionServer(
             self.action_server_name,
             ExecuteAction,
@@ -58,25 +58,28 @@ class PBDAction(object):
         self.action_server.register_goal_callback(self.__goal_callback)
 
     def start(self):
+        '''Start PbD Action Server'''
         self.action_server.start()
 
     def __goal_callback(self):
+        '''Goal Callback for PbD Action requests from clinets'''
         target_goal = self.action_server.accept_new_goal()
         rospy.loginfo("Target goal received: " + str(target_goal))
         self.execute(target_goal)
 
     def execute(self, target_goal):
+        '''Execute list of goal PbD Action in order'''
         action_names = target_goal.action_names
         # continue_on_failure = target_goal.continue_on_failure
         actions_completed = [False] * len(action_names)
         success = True
-        for index, action_name in enumerate(action_names):
-            if self.session.switch_to_action_by_name(action_name):
-                completed = self.session.execute_current_action()
-                actions_completed[index] = completed
-                success = success and completed
-                self.send_feedback(target_goal, action_name, index, actions_completed)
-        self.send_result(target_goal, actions_completed, success)
+        for index, action_name in enumerate(action_names): # Loop through each action
+            if self.session.switch_to_action_by_name(action_name): # Switch session to action
+                completed = self.session.execute_current_action() # If action exists in session, then execute
+                actions_completed[index] = completed # Record progress
+                success = success and completed # Diliberate continued success
+                self.send_feedback(target_goal, action_name, index, actions_completed) # Update clients with feeback
+        self.send_result(target_goal, actions_completed, success) # Send final results
 
     def send_feedback(self, target_goal,
                             current_action_executed_name,

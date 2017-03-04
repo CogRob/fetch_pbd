@@ -1,14 +1,14 @@
 # Define the goal
 string[] action_names # Specify which order of actions to execute in database
-bool continue_on_failure
+bool continue_on_failure # Continue to next action even if one action fails
 ---
 # Define the result
-string[] action_names
-bool[] actions_completed
-bool success
+string[] action_names # Original list of goal actions
+bool[] actions_completed # False if respective action fails
+bool success # False if any one action fails
 ---
 # Define a feedback message
-string[] action_names
-string current_action_executed_name
-uint32 current_action_executed_index
-bool[] current_actions_completed
+string[] action_names # Original list of goal actions
+string current_action_executed_name # Last executed action
+uint32 current_action_executed_index # Last executed action's index in action_names
+bool[] current_actions_completed # False if respective action fails
