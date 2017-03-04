@@ -12,24 +12,16 @@ It coordinates execution of leaned actions with the robot on the client's behalf
 import rospy
 
 # ROS builtins
-# from actionlib_msgs.msg import GoalStatus
 from actionlib import SimpleActionClient, SimpleActionServer
-# from visualization_msgs.msg import MarkerArray
 from interactive_markers.interactive_marker_server import \
      InteractiveMarkerServer
 from tf import TransformListener
 # import rospkg
 
 # Local
-# from fetch_arm_control.msg import GripperState
 from fetch_pbd_interaction.session import Session
-# from fetch_pbd_interaction.msg import ExecutionStatus
 from fetch_pbd_interaction.msg import ExecuteAction, ExecuteResult, ExecuteFeedback
-# from fetch_pbd_interaction.msg import RobotSound, WorldState
-# from fetch_pbd_interaction.srv import Ping, PingResponse, GetObjectList
 from fetch_pbd_interaction.robot import Robot
-# from std_msgs.msg import String
-# from std_srvs.srv import Empty
 
 # ######################################################################
 # Module level constants
@@ -75,37 +67,15 @@ class PBDAction(object):
 
     def execute(self, target_goal):
         action_names = target_goal.action_names
-        continue_on_failure = target_goal.continue_on_failure
+        # continue_on_failure = target_goal.continue_on_failure
         actions_completed = [False] * len(action_names)
         success = True
         for index, action_name in enumerate(action_names):
-            switched = self.session.switch_to_action_by_name(action_name)
-            if switched:
-                completed = not self.session.execute_current_action()
+            if self.session.switch_to_action_by_name(action_name):
+                completed = self.session.execute_current_action()
                 actions_completed[index] = completed
-
-                if completed:
-                    self.send_feedback(target_goal, action_name, index, actions_completed)
-                elif continue_on_failure:
-                    success = False
-                    rospy.logwarn(("Action {} not completed! " +
-                                  "Dazed and confused, but trying to continue").format(action_name))
-                else:
-                    success = False
-                    self.send_abort(target_goal, actions_completed, success)
-                    rospy.logwarn(("Action {} not completed! " +
-                                  "Aborting now.").format(action_name))
-                    return
-
-            elif continue_on_failure:
-                success = False
-                rospy.logwarn(("No action {} available! " +
-                              "Dazed and confused, but trying to continue").format(action_name))
-            else:
-                success = False
-                self.send_abort(target_goal, actions_completed, success)
-                rospy.logwarn(("No action {} available! " +
-                              "Aborting now.").format(action_name))
+                success = success and completed
+                self.send_feedback(target_goal, action_name, index, actions_completed)
         self.send_result(target_goal, actions_completed, success)
 
     def send_feedback(self, target_goal,
