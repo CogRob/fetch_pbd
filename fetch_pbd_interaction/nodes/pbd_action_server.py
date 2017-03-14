@@ -67,18 +67,61 @@ class PBDAction(object):
         rospy.loginfo("Target goal received: " + str(target_goal))
         self.execute(target_goal)
 
+    def switch_to_action_by_name(self, name):
+        '''Switches to action with name
+
+            Args:
+                name (str): The action name to switch to.
+
+            Returns:
+                bool: Whether successfully switched to index action.
+        '''
+        names = self.session._get_action_names()
+        if name in names:
+            index = names.index(name)
+            return self.switch_to_action_by_index(index)
+        else:
+            return False
+
+    def switch_to_action_by_index(self, index):
+        '''Switches to action with index
+
+        Args:
+            index (int): The action id to switch to.
+
+        Returns:
+            bool: Whether successfully switched to index action.
+        '''
+        self.session._lock.acquire()
+        self.session._selected_primitive = -1
+
+        if index < 0 or index >= len(self.session._actions):
+            rospy.logwarn("Index out of bounds: {}".format(index))
+            return False
+
+        if not index in self.session._actions:
+            rospy.logwarn(
+                "Can't switch actions: failed to load action {}".format(
+                    index))
+            return False
+
+        self.session._current_action_id = index
+        self.session._lock.release()
+        return True
+
     def execute(self, target_goal):
         '''Execute list of goal PbD Action in order'''
         action_names = target_goal.action_names
         # continue_on_failure = target_goal.continue_on_failure
         actions_completed = [False] * len(action_names)
         success = True
-        for index, action_name in enumerate(action_names): # Loop through each action
-            if self.session.switch_to_action_by_name(action_name): # Switch session to action
+        for action_index, action_name in enumerate(action_names): # Loop through each action
+            if self.switch_to_action_by_name(action_name): # Switch session to action
+                self.session.get_current_action()._reachable_override = True # Avoide checking all premetive are reachalbe
                 completed = self.session.execute_current_action() # If action exists in session, then execute
-                actions_completed[index] = completed # Record progress
+                actions_completed[action_index] = completed # Record progress
                 success = success and completed # Diliberate continued success
-                self.send_feedback(target_goal, action_name, index, actions_completed) # Update clients with feeback
+                self.send_feedback(target_goal, action_name, action_index, actions_completed) # Update clients with feeback
         self.send_result(target_goal, actions_completed, success) # Send final results
 
     def send_feedback(self, target_goal,

@@ -76,6 +76,7 @@ class Action:
         self._tf_listener = tf_listener
         self._primitive_counter = 0
         # self._marker_visibility = []
+        self._reachable_override = False
 
         # Markers to connect consecutive primitives together
         self._link_markers = {}
@@ -731,7 +732,11 @@ class Action:
                 String("Precondition is not met."))
         else:
             # Check that all parts of the action are reachable
-            if not self._is_action_reachable():
+            if self._reachable_override:
+                is_action_reachable = True
+            else:
+                is_action_reachable = self._is_action_reachable()
+            if not is_action_reachable:
                 rospy.logwarn('Problem finding IK solutions.')
                 self._status = ExecutionStatus.NO_IK
                 self._status_publisher.publish(
@@ -847,4 +852,3 @@ class Action:
             if not marker is None:
                 self._link_markers[0] = marker
                 self._link_markers[0].action = Marker.DELETE
-

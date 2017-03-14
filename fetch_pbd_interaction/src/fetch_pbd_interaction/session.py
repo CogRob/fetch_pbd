@@ -613,12 +613,10 @@ class Session:
                 else:
                     # No object is required: start execution now.
                     self.get_current_action().start_execution()
-
-                    for i in range(1000):
-                        action = self.get_current_action()
+                    action = self.get_current_action()
+                    status = action.get_status()
+                    while status == ExecutionStatus.EXECUTING:
                         status = action.get_status()
-                        if status != ExecutionStatus.EXECUTING:
-                            break
                         rospy.sleep(0.1)
                     if status == ExecutionStatus.SUCCEEDED:
                         return True
