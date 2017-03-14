@@ -616,6 +616,7 @@ class Session:
                     action = self.get_current_action()
                     status = action.get_status()
                     while status == ExecutionStatus.EXECUTING:
+                        action = self.get_current_action()
                         status = action.get_status()
                         rospy.sleep(0.1)
                     if status == ExecutionStatus.SUCCEEDED:

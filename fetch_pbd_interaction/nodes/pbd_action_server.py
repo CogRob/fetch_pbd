@@ -106,7 +106,22 @@ class PBDAction(object):
             return False
 
         self.session._current_action_id = index
+        self.session._clear_world_objects_srv()
         self.session._lock.release()
+        # self.session.get_current_action().initialize_viz()
+        self.session._update_session_state()
+        self.session.publish_primitive_tf()
+        # action = self.session._actions[self.session._current_action_id]
+        # for i in range(self.session.n_primitives()):
+        #     try:
+        #         self.session._tf_listener.waitForTransform("base_link",
+        #                      "primitive_" + str(i),
+        #                      rospy.Time.now(),
+        #                      rospy.Duration(5.0))
+        #         action.get_primitive(i).update_viz(False)
+        #     except Exception, e:
+        #         rospy.loginfo("Frame primitive_" + str(i) +
+        #                       " is not available.")
         return True
 
     def execute(self, target_goal):
